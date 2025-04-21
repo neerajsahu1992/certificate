@@ -18,5 +18,5 @@ To eliminate fraudulent claims and bring transparency, trust, and security to th
 - 📱 Front-end dApp for user-friendly interaction and verification.
 - 📜 Timestamp and QR-code-based printable credentials.
 ## Contract Details:
-0xeC3a3d3076A5CF1b737503d9c796c2A7B530c4F6
-<img width="960" alt="image" src="https://github.com/user-attachments/assets/93b4743f-857e-47de-ad22-e6746727dcc7" />
+0xfebc6b19fe949be5671c57c9fe3f77a10d18b2a1
+<img width="951" alt="image" src="https://github.com/user-attachments/assets/1b12c139-2536-4271-bab8-563423fdf6ab" />
