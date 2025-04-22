@@ -8,10 +8,10 @@ contract CertificateIssuer {
         string studentName;
         string courseName;
         uint256 issueDate;
-        bool isValid;
     }
 
     mapping(bytes32 => Certificate) public certificates;
+    bytes32[] public issuedCertificateHashes;
 
     constructor() {
         owner = msg.sender;
@@ -22,23 +22,42 @@ contract CertificateIssuer {
         _;
     }
 
+    // Function to issue a new certificate
     function issueCertificate(string memory studentName, string memory courseName) public onlyOwner {
         bytes32 certHash = keccak256(abi.encodePacked(studentName, courseName, block.timestamp));
-        certificates[certHash] = Certificate(studentName, courseName, block.timestamp, true);
+        certificates[certHash] = Certificate(studentName, courseName, block.timestamp);
+        issuedCertificateHashes.push(certHash);
     }
 
-    function verifyCertificate(bytes32 certHash) public view returns (string memory, string memory, uint256, bool) {
+    // Function to verify a certificate
+    function verifyCertificate(bytes32 certHash) public view returns (string memory, string memory, uint256) {
         Certificate memory cert = certificates[certHash];
         require(cert.issueDate != 0, "Certificate not found");
-        return (cert.studentName, cert.courseName, cert.issueDate, cert.isValid);
+        return (cert.studentName, cert.courseName, cert.issueDate);
     }
 
-    function getCertificateHash(string memory studentName, string memory courseName, uint256 timestamp) public pure returns (bytes32) {
-        return keccak256(abi.encodePacked(studentName, courseName, timestamp));
+    // Function to update certificate details
+    function updateCertificate(bytes32 certHash, string memory newStudentName, string memory newCourseName) public onlyOwner {
+        Certificate storage cert = certificates[certHash];
+        require(cert.issueDate != 0, "Certificate not found");
+        cert.studentName = newStudentName;
+        cert.courseName = newCourseName;
     }
 
+    // Function to revoke a certificate
     function revokeCertificate(bytes32 certHash) public onlyOwner {
-        require(certificates[certHash].isValid, "Certificate not found or already revoked");
-        certificates[certHash].isValid = false;
+        require(certificates[certHash].issueDate != 0, "Certificate not found");
+        delete certificates[certHash];
+    }
+
+    // New Function 1: Get certificate hash by index (to list issued certificates)
+    function getCertificateHashByIndex(uint index) public view returns (bytes32) {
+        require(index < issuedCertificateHashes.length, "Index out of bounds");
+        return issuedCertificateHashes[index];
+    }
+
+    // New Function 2: Get total number of issued certificates
+    function getIssuedCertificateCount() public view returns (uint) {
+        return issuedCertificateHashes.length;
     }
 }
