@@ -2,7 +2,7 @@
 
 ## 📄 Project Description
 This project aims to digitize and secure academic and professional certificates using blockchain technology. It ensures tamper-proof, easily verifiable, and immutable digital credentials for students, professionals, and institutions.
-
+   
 ## 🎯 Project Vision
 To eliminate fraudulent claims and bring transparency, trust, and security to the certificate issuance process by leveraging the decentralization and immutability of blockchain.
 
