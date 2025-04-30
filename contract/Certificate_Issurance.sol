@@ -8,7 +8,7 @@ contract CertificateIssuer {
     address public owner;
 
     struct Certificate {
-        string studentName;
+        string studentName;  
         string courseName;
         uint256 issueDate;
     }
