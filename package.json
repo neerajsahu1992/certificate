@@ -1,0 +1,14 @@
+{
+  "name": "CertificateIssuer",
+  "version": "1.0.0",
+  "description": "A Hardhat project for issuing and verifying certificates on Core Testnet 2.",
+  "scripts": {
+    "test": "npx hardhat test",
+    "deploy": "npx hardhat run scripts/deploy.js --network coretestnet"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^3.0.0",
+    "dotenv": "^16.3.1",
+    "hardhat": "^2.21.0"
+  }
+}
