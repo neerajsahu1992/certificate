@@ -39,7 +39,11 @@ contract CertificateIssuer {
     /// @return studentName The student's name
     /// @return courseName The course name
     /// @return issueDate The date the certificate was issued
-    function verifyCertificate(bytes32 certHash) external view returns (string memory studentName, string memory courseName, uint256 issueDate) {
+    function verifyCertificate(bytes32 certHash) external view returns (
+        string memory studentName,
+        string memory courseName,
+        uint256 issueDate
+    ) {
         Certificate memory cert = certificates[certHash];
         require(cert.issueDate != 0, "Certificate not found");
         return (cert.studentName, cert.courseName, cert.issueDate);
@@ -57,7 +61,32 @@ contract CertificateIssuer {
     /// @param courseName The course name
     /// @param timestamp The issuance timestamp
     /// @return certHash The generated certificate hash
-    function generateCertHash(string memory studentName, string memory courseName, uint256 timestamp) external pure returns (bytes32 certHash) {
+    function generateCertHash(
+        string memory studentName,
+        string memory courseName,
+        uint256 timestamp
+    ) external pure returns (bytes32 certHash) {
         return keccak256(abi.encodePacked(studentName, courseName, timestamp));
+    }
+
+    /// @notice Checks if a certificate exists for given details
+    /// @param studentName The student's name
+    /// @param courseName The course name
+    /// @param timestamp The timestamp of issuance
+    /// @return exists True if the certificate exists
+    function checkCertificateExists(
+        string memory studentName,
+        string memory courseName,
+        uint256 timestamp
+    ) external view returns (bool exists) {
+        bytes32 certHash = keccak256(abi.encodePacked(studentName, courseName, timestamp));
+        return certificates[certHash].issueDate != 0;
+    }
+
+    /// @notice Transfers contract ownership to a new address
+    /// @param newOwner The address of the new owner
+    function transferOwnership(address newOwner) external onlyOwner {
+        require(newOwner != address(0), "Invalid new owner address");
+        owner = newOwner;
     }
 }
