@@ -8,12 +8,13 @@ contract CertificateIssuer {
     address public owner;
 
     struct Certificate {
-        string studentName;  
+        string studentName;
         string courseName;
         uint256 issueDate;
     }
 
     mapping(bytes32 => Certificate) private certificates;
+    bytes32[] private certificateHashes;
 
     /// @notice Sets the deployer as the contract owner
     constructor() {
@@ -27,18 +28,13 @@ contract CertificateIssuer {
     }
 
     /// @notice Issues a new certificate
-    /// @param studentName The student's name
-    /// @param courseName The course name
     function issueCertificate(string memory studentName, string memory courseName) external onlyOwner {
         bytes32 certHash = keccak256(abi.encodePacked(studentName, courseName, block.timestamp));
         certificates[certHash] = Certificate(studentName, courseName, block.timestamp);
+        certificateHashes.push(certHash);
     }
 
     /// @notice Verifies and fetches certificate details
-    /// @param certHash The hash of the certificate
-    /// @return studentName The student's name
-    /// @return courseName The course name
-    /// @return issueDate The date the certificate was issued
     function verifyCertificate(bytes32 certHash) external view returns (
         string memory studentName,
         string memory courseName,
@@ -49,18 +45,22 @@ contract CertificateIssuer {
         return (cert.studentName, cert.courseName, cert.issueDate);
     }
 
-    /// @notice Revokes (deletes) an issued certificate
-    /// @param certHash The hash of the certificate to revoke
+    /// @notice Revokes an issued certificate
     function revokeCertificate(bytes32 certHash) external onlyOwner {
         require(certificates[certHash].issueDate != 0, "Certificate not found");
         delete certificates[certHash];
+
+        // Remove from certificateHashes
+        for (uint256 i = 0; i < certificateHashes.length; i++) {
+            if (certificateHashes[i] == certHash) {
+                certificateHashes[i] = certificateHashes[certificateHashes.length - 1];
+                certificateHashes.pop();
+                break;
+            }
+        }
     }
 
     /// @notice Generates a certificate hash for off-chain use
-    /// @param studentName The student's name
-    /// @param courseName The course name
-    /// @param timestamp The issuance timestamp
-    /// @return certHash The generated certificate hash
     function generateCertHash(
         string memory studentName,
         string memory courseName,
@@ -69,11 +69,7 @@ contract CertificateIssuer {
         return keccak256(abi.encodePacked(studentName, courseName, timestamp));
     }
 
-    /// @notice Checks if a certificate exists for given details
-    /// @param studentName The student's name
-    /// @param courseName The course name
-    /// @param timestamp The timestamp of issuance
-    /// @return exists True if the certificate exists
+    /// @notice Checks if a certificate exists
     function checkCertificateExists(
         string memory studentName,
         string memory courseName,
@@ -84,9 +80,33 @@ contract CertificateIssuer {
     }
 
     /// @notice Transfers contract ownership to a new address
-    /// @param newOwner The address of the new owner
     function transferOwnership(address newOwner) external onlyOwner {
         require(newOwner != address(0), "Invalid new owner address");
         owner = newOwner;
+    }
+
+    /// @notice Returns the total number of issued certificates
+    function getCertificateCount() external view returns (uint256 count) {
+        return certificateHashes.length;
+    }
+
+    /// @notice Returns all certificate hashes
+    function getAllCertificates() external view returns (bytes32[] memory) {
+        return certificateHashes;
+    }
+
+    /// @notice Returns the cert hash for given input
+    function getCertificateHash(string memory studentName, string memory courseName, uint256 timestamp) external pure returns (bytes32) {
+        return keccak256(abi.encodePacked(studentName, courseName, timestamp));
+    }
+
+    /// @notice Checks if the caller is the contract owner
+    function isOwner() external view returns (bool) {
+        return msg.sender == owner;
+    }
+
+    /// @notice Gets the current owner
+    function getOwner() external view returns (address) {
+        return owner;
     }
 }
