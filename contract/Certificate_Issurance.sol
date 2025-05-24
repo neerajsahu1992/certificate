@@ -109,4 +109,16 @@ contract CertificateIssuer {
     function getOwner() external view returns (address) {
         return owner;
     }
+
+    /// @notice Returns the certificate details by index
+    function getCertificateByIndex(uint256 index) external view returns (
+        string memory studentName,
+        string memory courseName,
+        uint256 issueDate
+    ) {
+        require(index < certificateHashes.length, "Index out of bounds");
+        bytes32 certHash = certificateHashes[index];
+        Certificate memory cert = certificates[certHash];
+        return (cert.studentName, cert.courseName, cert.issueDate);
+    }
 }
