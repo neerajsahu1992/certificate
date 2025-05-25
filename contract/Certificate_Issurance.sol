@@ -121,4 +121,9 @@ contract CertificateIssuer {
         Certificate memory cert = certificates[certHash];
         return (cert.studentName, cert.courseName, cert.issueDate);
     }
+
+    /// @notice Returns true if a given hash is a valid certificate hash in the registry
+    function isValidCertificateHash(bytes32 certHash) external view returns (bool exists) {
+        return certificates[certHash].issueDate != 0;
+    }
 }
