@@ -126,4 +126,13 @@ contract CertificateIssuer {
     function isValidCertificateHash(bytes32 certHash) external view returns (bool exists) {
         return certificates[certHash].issueDate != 0;
     }
+
+    /// @notice Returns all certificate details
+    function getAllCertificateDetails() external view returns (Certificate[] memory certs) {
+        uint256 count = certificateHashes.length;
+        certs = new Certificate[](count);
+        for (uint256 i = 0; i < count; i++) {
+            certs[i] = certificates[certificateHashes[i]];
+        }
+    }
 }
