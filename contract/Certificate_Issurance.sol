@@ -135,4 +135,11 @@ contract CertificateIssuer {
             certs[i] = certificates[certificateHashes[i]];
         }
     }
+
+    /// @notice Updates an existing certificate's course name
+    function updateCourseName(bytes32 certHash, string memory newCourseName) external onlyOwner {
+        Certificate storage cert = certificates[certHash];
+        require(cert.issueDate != 0, "Certificate not found");
+        cert.courseName = newCourseName;
+    }
 }
