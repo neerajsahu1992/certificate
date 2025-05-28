@@ -142,4 +142,29 @@ contract CertificateIssuer {
         require(cert.issueDate != 0, "Certificate not found");
         cert.courseName = newCourseName;
     }
+
+    /// @notice Returns all certificates issued to a specific student
+    function getCertificatesByStudent(string memory studentName) external view returns (Certificate[] memory results) {
+        uint256 total = certificateHashes.length;
+        uint256 count = 0;
+
+        // First pass to count matches
+        for (uint256 i = 0; i < total; i++) {
+            if (keccak256(bytes(certificates[certificateHashes[i]].studentName)) == keccak256(bytes(studentName))) {
+                count++;
+            }
+        }
+
+        results = new Certificate[](count);
+        uint256 j = 0;
+
+        // Second pass to collect matches
+        for (uint256 i = 0; i < total; i++) {
+            Certificate memory cert = certificates[certificateHashes[i]];
+            if (keccak256(bytes(cert.studentName)) == keccak256(bytes(studentName))) {
+                results[j] = cert;
+                j++;
+            }
+        }
+    }
 }
