@@ -2,7 +2,7 @@
 pragma solidity ^0.8.0;
 
 /// @title Certificate Issuer Contract
-/// @notice This contract allows authorized issuance, verification, and revocation of certificates.
+/// @notice This contract allows authorized issuance, verification, revocation, and expiration of certificates, with frontend/IPFS integration.
 
 contract CertificateIssuer {
     address public owner;
@@ -11,10 +11,16 @@ contract CertificateIssuer {
         string studentName;
         string courseName;
         uint256 issueDate;
+        uint256 expirationDate;
+        string ipfsHash; // IPFS hash for the certificate file
     }
 
     mapping(bytes32 => Certificate) private certificates;
     bytes32[] private certificateHashes;
+
+    event CertificateIssued(bytes32 indexed certHash, string studentName, string courseName, uint256 issueDate, uint256 expirationDate, string ipfsHash);
+    event CertificateRevoked(bytes32 indexed certHash);
+    event ExpirationUpdated(bytes32 indexed certHash, uint256 newExpirationDate);
 
     constructor() {
         owner = msg.sender;
@@ -25,20 +31,28 @@ contract CertificateIssuer {
         _;
     }
 
-    function issueCertificate(string memory studentName, string memory courseName) external onlyOwner {
-        bytes32 certHash = keccak256(abi.encodePacked(studentName, courseName, block.timestamp));
-        certificates[certHash] = Certificate(studentName, courseName, block.timestamp);
+    function issueCertificate(
+        string memory studentName,
+        string memory courseName,
+        uint256 expirationDate,
+        string memory ipfsHash
+    ) external onlyOwner {
+        bytes32 certHash = keccak256(abi.encodePacked(studentName, courseName, block.timestamp, ipfsHash));
+        certificates[certHash] = Certificate(studentName, courseName, block.timestamp, expirationDate, ipfsHash);
         certificateHashes.push(certHash);
+        emit CertificateIssued(certHash, studentName, courseName, block.timestamp, expirationDate, ipfsHash);
     }
 
     function verifyCertificate(bytes32 certHash) external view returns (
         string memory studentName,
         string memory courseName,
-        uint256 issueDate
+        uint256 issueDate,
+        uint256 expirationDate,
+        string memory ipfsHash
     ) {
         Certificate memory cert = certificates[certHash];
         require(cert.issueDate != 0, "Certificate not found");
-        return (cert.studentName, cert.courseName, cert.issueDate);
+        return (cert.studentName, cert.courseName, cert.issueDate, cert.expirationDate, cert.ipfsHash);
     }
 
     function revokeCertificate(bytes32 certHash) external onlyOwner {
@@ -52,22 +66,32 @@ contract CertificateIssuer {
                 break;
             }
         }
+
+        emit CertificateRevoked(certHash);
+    }
+
+    function updateCertificateExpiration(bytes32 certHash, uint256 newExpirationDate) external onlyOwner {
+        require(certificates[certHash].issueDate != 0, "Certificate not found");
+        certificates[certHash].expirationDate = newExpirationDate;
+        emit ExpirationUpdated(certHash, newExpirationDate);
     }
 
     function generateCertHash(
         string memory studentName,
         string memory courseName,
-        uint256 timestamp
+        uint256 timestamp,
+        string memory ipfsHash
     ) external pure returns (bytes32 certHash) {
-        return keccak256(abi.encodePacked(studentName, courseName, timestamp));
+        return keccak256(abi.encodePacked(studentName, courseName, timestamp, ipfsHash));
     }
 
     function checkCertificateExists(
         string memory studentName,
         string memory courseName,
-        uint256 timestamp
+        uint256 timestamp,
+        string memory ipfsHash
     ) external view returns (bool exists) {
-        bytes32 certHash = keccak256(abi.encodePacked(studentName, courseName, timestamp));
+        bytes32 certHash = keccak256(abi.encodePacked(studentName, courseName, timestamp, ipfsHash));
         return certificates[certHash].issueDate != 0;
     }
 
@@ -84,76 +108,28 @@ contract CertificateIssuer {
         return certificateHashes;
     }
 
-    function getCertificateHash(string memory studentName, string memory courseName, uint256 timestamp) external pure returns (bytes32) {
-        return keccak256(abi.encodePacked(studentName, courseName, timestamp));
-    }
-
-    function isOwner() external view returns (bool) {
-        return msg.sender == owner;
-    }
-
-    function getOwner() external view returns (address) {
-        return owner;
-    }
-
     function getCertificateByIndex(uint256 index) external view returns (
         string memory studentName,
         string memory courseName,
-        uint256 issueDate
+        uint256 issueDate,
+        uint256 expirationDate,
+        string memory ipfsHash
     ) {
         require(index < certificateHashes.length, "Index out of bounds");
         bytes32 certHash = certificateHashes[index];
         Certificate memory cert = certificates[certHash];
-        return (cert.studentName, cert.courseName, cert.issueDate);
+        return (cert.studentName, cert.courseName, cert.issueDate, cert.expirationDate, cert.ipfsHash);
     }
 
     function isValidCertificateHash(bytes32 certHash) external view returns (bool exists) {
         return certificates[certHash].issueDate != 0;
     }
 
-    function getAllCertificateDetails() external view returns (Certificate[] memory certs) {
-        uint256 count = certificateHashes.length;
-        certs = new Certificate[](count);
-        for (uint256 i = 0; i < count; i++) {
-            certs[i] = certificates[certificateHashes[i]];
-        }
+    function getOwner() external view returns (address) {
+        return owner;
     }
 
-    function updateCourseName(bytes32 certHash, string memory newCourseName) external onlyOwner {
-        Certificate storage cert = certificates[certHash];
-        require(cert.issueDate != 0, "Certificate not found");
-        cert.courseName = newCourseName;
-    }
-
-    function getCertificatesByStudent(string memory studentName) external view returns (Certificate[] memory results) {
-        uint256 total = certificateHashes.length;
-        uint256 count = 0;
-
-        for (uint256 i = 0; i < total; i++) {
-            if (keccak256(bytes(certificates[certificateHashes[i]].studentName)) == keccak256(bytes(studentName))) {
-                count++;
-            }
-        }
-
-        results = new Certificate[](count);
-        uint256 j = 0;
-
-        for (uint256 i = 0; i < total; i++) {
-            Certificate memory cert = certificates[certificateHashes[i]];
-            if (keccak256(bytes(cert.studentName)) == keccak256(bytes(studentName))) {
-                results[j] = cert;
-                j++;
-            }
-        }
-    }
-
-    /// @notice Returns whether a student has any issued certificates
-    function hasCertificates(string memory studentName) external view returns (bool) {
-        for (uint256 i = 0; i < certificateHashes.length; i++) {
-            if (keccak256(bytes(certificates[certificateHashes[i]].studentName)) == keccak256(bytes(studentName))) {
-                return true;
-            }
-        }
-        return false;
+    function isOwner() external view returns (bool) {
+        return msg.sender == owner;
     }
 }
