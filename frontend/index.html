@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Certificate Issuer</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>Certificate Issuer DApp</h1>
+
+    <section>
+      <h2>Issue Certificate</h2>
+      <input id="studentName" placeholder="Student Name" />
+      <input id="courseName" placeholder="Course Name" />
+      <input id="expirationDate" type="date" />
+      <input id="ipfsHash" placeholder="IPFS File Hash (optional)" />
+      <button onclick="issueCertificate()">Issue</button>
+    </section>
+
+    <section>
+      <h2>Verify Certificate</h2>
+      <input id="verifyHash" placeholder="Certificate Hash" />
+      <button onclick="verifyCertificate()">Verify</button>
+      <div id="verifyResult"></div>
+    </section>
+
+    <section>
+      <h2>Revoke Certificate</h2>
+      <input id="revokeHash" placeholder="Certificate Hash" />
+      <button onclick="revokeCertificate()">Revoke</button>
+    </section>
+
+    <section>
+      <h2>Status</h2>
+      <pre id="status"></pre>
+    </section>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/web3@1.10.0/dist/web3.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
