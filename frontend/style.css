@@ -1,46 +1,95 @@
-body {
-  font-family: sans-serif;
-  background: #f2f2f2;
+/* Base Reset */
+* {
   margin: 0;
-  padding: 20px;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-.container {
-  max-width: 600px;
-  margin: auto;
-  background: white;
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #e3f2fd, #ffffff);
   padding: 20px;
-  border-radius: 10px;
-}
-
-h1, h2 {
   color: #333;
 }
 
-input {
-  width: 100%;
-  margin: 5px 0;
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
+/* Container Styling */
+.container {
+  max-width: 700px;
+  margin: auto;
+  background: #ffffff;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 4px 25px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
 }
 
-button {
-  padding: 10px 20px;
+/* Headings */
+h1, h2 {
+  text-align: center;
+  color: #2c3e50;
+  margin-bottom: 20px;
+}
+
+/* Input Fields */
+input, select {
+  width: 100%;
   margin: 10px 0;
-  background-color: #007bff;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 16px;
+  transition: border-color 0.3s ease;
+}
+
+input:focus, select:focus {
+  border-color: #007bff;
+  outline: none;
+}
+
+/* Buttons */
+button {
+  width: 100%;
+  padding: 12px;
+  margin: 10px 0;
+  background: linear-gradient(to right, #007bff, #0056b3);
   color: white;
+  font-weight: bold;
+  font-size: 16px;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
+  transition: background 0.3s ease;
 }
 
 button:hover {
-  background-color: #0056b3;
+  background: linear-gradient(to right, #0056b3, #003f7f);
 }
 
+/* Status Box */
 #status {
-  background: #eee;
-  padding: 10px;
-  border-radius: 6px;
+  margin-top: 15px;
+  background: #eaf4ff;
+  padding: 15px;
+  border-radius: 8px;
+  border-left: 5px solid #007bff;
+  color: #333;
+  font-size: 14px;
+  min-height: 50px;
+  word-wrap: break-word;
+}
+
+/* Section Styling */
+section {
+  margin-bottom: 30px;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .container {
+    padding: 20px;
+  }
+
+  button {
+    font-size: 15px;
+  }
 }
