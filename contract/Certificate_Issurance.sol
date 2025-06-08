@@ -18,7 +18,14 @@ contract CertificateIssuer {
     mapping(bytes32 => Certificate) private certificates;
     bytes32[] private certificateHashes;
 
-    event CertificateIssued(bytes32 indexed certHash, string studentName, string courseName, uint256 issueDate, uint256 expirationDate, string ipfsHash);
+    event CertificateIssued(
+        bytes32 indexed certHash,
+        string studentName,
+        string courseName,
+        uint256 issueDate,
+        uint256 expirationDate,
+        string ipfsHash
+    );
     event CertificateRevoked(bytes32 indexed certHash);
     event ExpirationUpdated(bytes32 indexed certHash, uint256 newExpirationDate);
 
@@ -123,6 +130,11 @@ contract CertificateIssuer {
 
     function isValidCertificateHash(bytes32 certHash) external view returns (bool exists) {
         return certificates[certHash].issueDate != 0;
+    }
+
+    function getCertificateIPFSHash(bytes32 certHash) external view returns (string memory) {
+        require(certificates[certHash].issueDate != 0, "Certificate not found");
+        return certificates[certHash].ipfsHash;
     }
 
     function getOwner() external view returns (address) {
