@@ -137,6 +137,11 @@ contract CertificateIssuer {
         return certificates[certHash].ipfsHash;
     }
 
+    function getCertificateMetadata(bytes32 certHash) external view returns (Certificate memory) {
+        require(certificates[certHash].issueDate != 0, "Certificate not found");
+        return certificates[certHash];
+    }
+
     function getOwner() external view returns (address) {
         return owner;
     }
