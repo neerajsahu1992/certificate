@@ -149,4 +149,27 @@ contract CertificateIssuer {
     function isOwner() external view returns (bool) {
         return msg.sender == owner;
     }
+
+    /// @notice Fetch all certificate hashes issued to a specific student name
+    function getCertificatesByStudentName(string memory studentName) external view returns (bytes32[] memory) {
+        uint256 count = 0;
+
+        for (uint256 i = 0; i < certificateHashes.length; i++) {
+            if (keccak256(bytes(certificates[certificateHashes[i]].studentName)) == keccak256(bytes(studentName))) {
+                count++;
+            }
+        }
+
+        bytes32[] memory result = new bytes32[](count);
+        uint256 index = 0;
+
+        for (uint256 i = 0; i < certificateHashes.length; i++) {
+            if (keccak256(bytes(certificates[certificateHashes[i]].studentName)) == keccak256(bytes(studentName))) {
+                result[index] = certificateHashes[i];
+                index++;
+            }
+        }
+
+        return result;
+    }
 }
