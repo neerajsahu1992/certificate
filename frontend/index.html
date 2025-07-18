@@ -2,101 +2,52 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>🌟 Certificate Issuer DApp</title>
+  <title>🎓 Enhanced Certificate Issuer DApp</title>
   <link rel="stylesheet" href="style.css" />
   <style>
     body {
-      background: linear-gradient(135deg, #1e3c72, #2a5298);
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
       color: #fff;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      margin: 0;
-      padding: 0;
       animation: fadeIn 1s ease-in;
+      margin: 0; padding: 0;
     }
-
     .container {
-      max-width: 900px;
+      max-width: 950px;
       margin: 40px auto;
       padding: 30px;
-      background: rgba(255, 255, 255, 0.05);
+      background: rgba(255,255,255,0.05);
       border-radius: 20px;
-      box-shadow: 0 0 20px rgba(0,0,0,0.3);
       backdrop-filter: blur(10px);
+      box-shadow: 0 0 20px rgba(0,0,0,0.4);
     }
-
-    h1 {
-      text-align: center;
-      font-size: 3em;
-      margin-bottom: 30px;
-      color: #ffd700;
-    }
-
-    h2 {
-      color: #87cefa;
-      font-size: 1.8em;
-      margin-bottom: 10px;
-      border-bottom: 2px solid #87cefa;
-      padding-bottom: 5px;
-    }
-
+    h1 { text-align: center; font-size: 3em; color: #00ffcc; margin-bottom: 20px; }
+    h2 { color: #ffcc66; border-bottom: 2px solid #ffcc66; margin-bottom: 15px; }
     section {
-      margin-bottom: 40px;
+      background: rgba(0,0,0,0.2);
       padding: 20px;
-      border-left: 5px solid #fff;
-      background-color: rgba(0,0,0,0.3);
-      border-radius: 10px;
-      transition: all 0.3s ease;
+      border-radius: 12px;
+      margin-bottom: 30px;
+      transition: background 0.3s ease;
     }
-
-    section:hover {
-      background-color: rgba(255,255,255,0.1);
-    }
-
+    section:hover { background: rgba(255,255,255,0.1); }
     input {
-      display: block;
-      width: 100%;
-      padding: 10px;
-      margin: 10px 0;
-      border: none;
-      border-radius: 8px;
-      font-size: 1em;
-      background-color: #fff;
-      color: #000;
+      width: 100%; padding: 10px; margin: 10px 0;
+      border-radius: 8px; border: none;
+      font-size: 1em; background: #fff; color: #333;
     }
-
     button {
-      padding: 10px 20px;
-      font-size: 1.1em;
+      padding: 10px 20px; font-size: 1em; border: none;
+      background-color: #00ffcc; color: #000;
+      border-radius: 8px; cursor: pointer;
+      transition: all 0.3s ease; font-weight: bold;
+    }
+    button:hover { background-color: #00997a; color: #fff; }
+    #result, #status {
+      background: rgba(255,255,255,0.1); padding: 10px;
+      border-radius: 10px; overflow-x: auto; margin-top: 15px;
       font-weight: bold;
-      background-color: #32cd32;
-      color: #000;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-      margin-top: 10px;
     }
-
-    button:hover {
-      background-color: #228b22;
-      color: #fff;
-    }
-
-    #verifyResult {
-      margin-top: 15px;
-      font-size: 1.1em;
-      font-weight: bold;
-      color: #ffd700;
-    }
-
-    #status {
-      background-color: rgba(255,255,255,0.1);
-      padding: 15px;
-      border-radius: 10px;
-      font-size: 1em;
-      overflow-x: auto;
-    }
-
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(20px); }
       to { opacity: 1; transform: translateY(0); }
@@ -105,7 +56,7 @@
 </head>
 <body>
   <div class="container">
-    <h1>🎓 Certificate Issuer DApp</h1>
+    <h1>🎓 Enhanced Certificate Issuer DApp</h1>
 
     <section>
       <h2>📜 Issue Certificate</h2>
@@ -120,7 +71,14 @@
       <h2>🔍 Verify Certificate</h2>
       <input id="verifyHash" placeholder="🔑 Certificate Hash" />
       <button onclick="verifyCertificate()">🔎 Verify</button>
-      <div id="verifyResult"></div>
+      <div id="result"></div>
+    </section>
+
+    <section>
+      <h2>🔖 Certificates by Student</h2>
+      <input id="searchStudentName" placeholder="👤 Enter Student Name" />
+      <button onclick="getCertificatesByStudentName()">🔖 Fetch Certificates</button>
+      <div id="studentCerts"></div>
     </section>
 
     <section>
@@ -130,12 +88,78 @@
     </section>
 
     <section>
+      <h2>📜 Update Expiration Date</h2>
+      <input id="updateCertHash" placeholder="🔑 Certificate Hash" />
+      <input id="newExpirationDate" type="date" />
+      <button onclick="updateExpiration()">🔄 Update Expiration</button>
+    </section>
+
+    <section>
       <h2>📊 Status Log</h2>
-      <pre id="status">Awaiting actions...</pre>
+      <pre id="status">Ready...</pre>
     </section>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/web3@1.10.0/dist/web3.min.js"></script>
   <script src="app.js"></script>
+  <script>
+    const logStatus = (msg) => {
+      document.getElementById('status').innerText = msg;
+    };
+
+    async function issueCertificate() {
+      const studentName = document.getElementById('studentName').value;
+      const courseName = document.getElementById('courseName').value;
+      const expiration = new Date(document.getElementById('expirationDate').value).getTime() / 1000;
+      const ipfsHash = document.getElementById('ipfsHash').value;
+
+      await contract.methods.issueCertificate(studentName, courseName, expiration, ipfsHash)
+        .send({ from: account })
+        .then(() => logStatus('✅ Certificate issued successfully!'))
+        .catch((e) => logStatus(`❌ Error: ${e.message}`));
+    }
+
+    async function verifyCertificate() {
+      const certHash = document.getElementById('verifyHash').value;
+      await contract.methods.verifyCertificate(certHash).call()
+        .then(res => {
+          document.getElementById('result').innerHTML = `
+          ✅ <b>Name:</b> ${res.studentName}<br>
+          📘 <b>Course:</b> ${res.courseName}<br>
+          📅 <b>Issued:</b> ${new Date(res.issueDate * 1000).toLocaleString()}<br>
+          ⌛ <b>Expires:</b> ${new Date(res.expirationDate * 1000).toLocaleString()}<br>
+          🌐 <b>IPFS:</b> ${res.ipfsHash}`;
+        })
+        .catch(e => document.getElementById('result').innerText = `❌ Error: ${e.message}`);
+    }
+
+    async function getCertificatesByStudentName() {
+      const studentName = document.getElementById('searchStudentName').value;
+      await contract.methods.getCertificatesByStudentName(studentName).call()
+        .then(hashes => {
+          document.getElementById('studentCerts').innerHTML = hashes.length ?
+            hashes.map(h => `🔑 ${h}`).join('<br>') :
+            '❌ No certificates found.';
+        })
+        .catch(e => logStatus(`❌ Error: ${e.message}`));
+    }
+
+    async function revokeCertificate() {
+      const certHash = document.getElementById('revokeHash').value;
+      await contract.methods.revokeCertificate(certHash)
+        .send({ from: account })
+        .then(() => logStatus('❌ Certificate revoked!'))
+        .catch(e => logStatus(`❌ Error: ${e.message}`));
+    }
+
+    async function updateExpiration() {
+      const certHash = document.getElementById('updateCertHash').value;
+      const newExpiration = new Date(document.getElementById('newExpirationDate').value).getTime() / 1000;
+      await contract.methods.updateCertificateExpiration(certHash, newExpiration)
+        .send({ from: account })
+        .then(() => logStatus('🔄 Expiration date updated!'))
+        .catch(e => logStatus(`❌ Error: ${e.message}`));
+    }
+  </script>
 </body>
 </html>
