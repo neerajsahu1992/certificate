@@ -1,4 +1,8 @@
-# Blockchain-Based Certificate Issuance
+## 🎓 Enhanced Certificate Issuer DApp
+- Smart Contract-Based Certificate Management System with IPFS Integration
+
+This decentralized application (DApp) allows institutions or authorized entities to issue, verify, revoke, and manage certificates securely on the blockchain. Certificates are integrated with IPFS for decentralized storage.
+
 
 ## 📄 Project Description
 This project aims to digitize and secure academic and professional certificates using blockchain technology. It ensures tamper-proof, easily verifiable, and immutable digital credentials for students, professionals, and institutions.
